@@ -86,6 +86,7 @@ new apigw.LambdaRestApi(this, 'KenobiEndpoint', {
 ```
 
 ### CDK Commmands
+Must be run from within the `apps/cdk` directory
 ```bash
 cdk deploy
 cdk destroy
@@ -97,6 +98,7 @@ cdk synth
  * diff - outputs difference in resources being created or destroyed
  * synth - outputs the fully formed Cloudformation template to be used
 
+Deployment files can be found in the `apps/cdk/cdk.out`
 ### Adjust for bundling
 [Node Lambda Package](https://github.com/aws/aws-cdk/tree/master/packages/%40aws-cdk/aws-lambda-nodejs)
 ```bash
