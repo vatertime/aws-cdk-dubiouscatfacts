@@ -1,94 +1,93 @@
 
 
-# CdkLunchyLearn
+# Dubious Cat Facts
 
-This project was generated using [Nx](https://nx.dev).
+An exercise in deploying a Lambda with AWS CDK. Most commands are run the NX project's root, but with the `apps/cdk` folder we'll be running our commands from inside that
 
-<p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+## Prerequisites:
+ * AWS CLI (test installation by running `aws --version`)
+ * AWS IAM credentials ([Setup instructions](https://cdkworkshop.com/15-prerequisites/200-account.html))
+ * NX framework (`npm install -g nx`)
+ 
+## Create NX Workspace:
 
-🔎 **Nx is a set of Extensible Dev Tools for Monorepos.**
+From your root projects directory, initiate an NX workspace
+```bash
+npx create-nx-workspace@latest --preset=empty [desired-repo-name]
+```
 
-## Adding capabilities to your workspace
+Create an app directory for code which will be located in the `apps/` folder
+```bash
+  npm i @nrwl/node
+  nx g @nrwl/node:app lambda
+```
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+Note: to remove an app directory
+```bash
+nx g @nrwl/workspace:rm lambda
+```
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+## Create CDK workspace
 
-Below are our core plugins:
+```bash
+mkdir apps/cdk && cd apps/cdk
+npm install -g aws-cdk
+cdk init --language typescript
+```
+Bootstrap the project - This creates an s3 bucket so that your assets have a place to live when doing deployments
+```bash
+cdk bootstrap
+```
 
-- [React](https://reactjs.org)
-  - `npm install --save-dev @nrwl/react`
-- Web (no framework frontends)
-  - `npm install --save-dev @nrwl/web`
-- [Angular](https://angular.io)
-  - `npm install --save-dev @nrwl/angular`
-- [Nest](https://nestjs.com)
-  - `npm install --save-dev @nrwl/nest`
-- [Express](https://expressjs.com)
-  - `npm install --save-dev @nrwl/express`
-- [Node](https://nodejs.org)
-  - `npm install --save-dev @nrwl/node`
+### CDK Structure:
 
-There are also many [community plugins](https://nx.dev/nx-community) you could add.
+ * bin/cdk.ts - entrypoint of the application, will load stack defined in...
+ * lib/cdk-stack.ts - where main stack is defined
 
-## Generate an application
+### Working with Lambdas
+```bash
+npm install @aws-cdk/aws-lambda
+```
+```typescript
+import * as lambda from '@aws-cdk/aws-lambda';
+```
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+Add the lambda to your lib/cdk-stack.ts
+```typescript
+const helloThereLambda = new lambda.Function(this, 'KenobiHandler', {
+  runtime: lambda.Runtime.NODEJS_12_X,
+  code: lambda.Code.fromInline(`
+  exports.handler = async function(event) {
+    console.log("request:", JSON.stringify(event, undefined, 2));
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "text/plain" },
+      body: "Hello there"
+    };
+  };
+  `),
+  handler: 'index.handler'
+});
+```
 
-> You can use any of the plugins above to generate applications as well.
+### Working with AWS Gateway
+```bash
+npm install @aws-cdk/aws-apigateway
+```
+```typescript
+import * as apigw from '@aws-cdk/aws-apigateway';
+```
 
-When using Nx, you can create multiple applications and libraries in the same workspace.
+### Adjust for bundling
+https://github.com/aws/aws-cdk/tree/master/packages/%40aws-cdk/aws-lambda-nodejs
+```bash
+npm i @aws-cdk/aws-lambda-nodejs
+npm i --save-dev esbuild@0
+```
 
-## Generate a library
+## Useful links
+ * [CDK Getting Started Guide](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
+ * [CDK Workshop](https://cdkworkshop.com/)
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
-
-> You can also use any of the plugins above to generate libraries as well.
-
-Libraries are shareable across libraries and applications. They can be imported from `@cdk-lunchy-learn/mylib`.
-
-## Development server
-
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
-
-## Build
-
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
-
-Run `nx affected:test` to execute the unit tests affected by a change.
-
-## Running end-to-end tests
-
-Run `ng e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
-
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
-
-## Understand your workspace
-
-Run `nx dep-graph` to see a diagram of the dependencies of your projects.
-
-## Further help
-
-Visit the [Nx Documentation](https://nx.dev) to learn more.
-
-
-
-## ☁ Nx Cloud
-
-### Computation Memoization in the Cloud
-
-<p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
-
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
-
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
-
-Visit [Nx Cloud](https://nx.app/) to learn more.
+ ## Other Notes
+  [Node 15 issue](https://github.com/aws/aws-cdk/issues/12536) causing deployments to throw errors

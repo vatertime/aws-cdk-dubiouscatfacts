@@ -1,10 +1,74 @@
 {
-  
-  
   "version": 2,
-  
-  "projects": {},
   "cli": {
-    "defaultCollection": "@nrwl/workspace"
-  }
+    "defaultCollection": "@nrwl/node"
+  },
+  "projects": {
+    "lambda": {
+      "root": "apps/lambda",
+      "sourceRoot": "apps/lambda/src",
+      "projectType": "application",
+      "prefix": "lambda",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/lambda",
+            "main": "apps/lambda/src/main.ts",
+            "tsConfig": "apps/lambda/tsconfig.app.json"
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/lambda/src/environments/environment.ts",
+                  "with": "apps/lambda/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "testing": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "outputPath": "dist/apps/e2e-error",
+            "commands": [
+              {
+                "command": "node -e 'console.log(require(\"./dist/apps/lambda/main.js\").handler())'"
+              }
+            ],
+            "readyWhen": "Mock server started successfully"
+          },
+          "outputs": [
+            "{options.outputPath}"
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/lambda/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/lambda"
+          ],
+          "options": {
+            "jestConfig": "apps/lambda/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "lambda"
 }
