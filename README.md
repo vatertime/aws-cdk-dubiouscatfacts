@@ -78,16 +78,36 @@ npm install @aws-cdk/aws-apigateway
 import * as apigw from '@aws-cdk/aws-apigateway';
 ```
 
+Add the api to your lib/cdk-stack.ts
+```typescript
+new apigw.LambdaRestApi(this, 'KenobiEndpoint', {
+  handler: helloThereLambda
+});
+```
+
+### CDK Commmands
+```bash
+cdk deploy
+cdk destroy
+cdk diff
+cdk synth
+```
+ * deploy - executes cdk deployment
+ * destroy - rolls back deployment
+ * diff - outputs difference in resources being created or destroyed
+ * synth - outputs the fully formed Cloudformation template to be used
+
 ### Adjust for bundling
-https://github.com/aws/aws-cdk/tree/master/packages/%40aws-cdk/aws-lambda-nodejs
+[Node Lambda Package](https://github.com/aws/aws-cdk/tree/master/packages/%40aws-cdk/aws-lambda-nodejs)
 ```bash
 npm i @aws-cdk/aws-lambda-nodejs
 npm i --save-dev esbuild@0
 ```
 
 ## Useful links
+ * [AWS CDK Github Repo](https://github.com/aws/aws-cdk)
  * [CDK Getting Started Guide](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
  * [CDK Workshop](https://cdkworkshop.com/)
 
- ## Other Notes
-  [Node 15 issue](https://github.com/aws/aws-cdk/issues/12536) causing deployments to throw errors
+ ## Extra Credit
+ [Create a deployment pipeline using AWS](https://docs.aws.amazon.com/cdk/latest/guide/codepipeline_example.html)
