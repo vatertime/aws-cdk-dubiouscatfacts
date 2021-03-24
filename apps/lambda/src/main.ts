@@ -3,8 +3,11 @@ import * as _ from 'lodash';
 export const handler = async function(event) {
     return {
       statusCode: 200,
-      headers: { "Content-Type": "text/plain" },
-      body: generateCatFact()
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        "response_type": "in_channel",
+        "text": generateCatFact()
+      })
     };
   };
 
